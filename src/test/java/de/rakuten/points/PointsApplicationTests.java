@@ -1,15 +1,11 @@
-package com.rakuten.points;
+package de.rakuten.points;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PointsApplicationTests
-{
+class PointsApplicationTests {
 
-    @Test
-    void contextLoads()
-    {
-    }
-
+  @Test
+  void contextLoads() {}
 }
