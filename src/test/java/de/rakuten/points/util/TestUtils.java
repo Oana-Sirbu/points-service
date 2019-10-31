@@ -88,10 +88,4 @@ public class TestUtils {
             .build());
     return campaigns;
   }
-
-  public static void restTemplateSetup(RestTemplate restTemplate) {
-    CampaignDTO[] campaignsArr = getActiveCampaignDTOList().stream().toArray(CampaignDTO[]::new);
-    ResponseEntity<CampaignDTO[]> mockResponse = new ResponseEntity<>(campaignsArr, HttpStatus.OK);
-    when(restTemplate.getForEntity(eq(any()), CampaignDTO[].class)).thenReturn(mockResponse);
-  }
 }

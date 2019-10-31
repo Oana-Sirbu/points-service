@@ -1,5 +1,7 @@
 package de.rakuten.points.controller;
 
+import de.rakuten.points.domain.CampaignDTO;
+import de.rakuten.points.domain.OrderDTO;
 import de.rakuten.points.domain.PointsTransactionDTO;
 import de.rakuten.points.service.impl.PointsBalanceServiceImpl;
 import de.rakuten.points.service.impl.PointsTransactionServiceImpl;
@@ -13,13 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.ConstraintViolationException;
+import javax.validation.*;
+import java.util.Set;
 
+import static de.rakuten.points.util.TestUtils.getActiveCampaignDTOList;
 import static de.rakuten.points.util.TestUtils.getPointsTransactionDTO;
-import static de.rakuten.points.util.TestUtils.restTemplateSetup;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class PointsTransactionControllerTest {
@@ -57,7 +60,7 @@ public class PointsTransactionControllerTest {
     when(pointsTransactionService.update(any())).thenReturn(pointsTransaction);
     when(pointsTransactionService.findById(any())).thenReturn(pointsTransaction);
 
-    restTemplateSetup(restTemplate);
+    restTemplateSetup();
 
     ResponseEntity<PointsTransactionDTO> response =
         controller.putPointsTransaction(pointsTransaction.getId(), pointsTransaction);
@@ -70,7 +73,8 @@ public class PointsTransactionControllerTest {
   public void deletePointsTransaction_pointsTransactionId_responseStatusOK() {
     PointsTransactionDTO pointsTransaction = getPointsTransactionDTO();
     when(pointsTransactionService.findById(any())).thenReturn(pointsTransaction);
-    restTemplateSetup(restTemplate);
+
+    restTemplateSetup();
 
     ResponseEntity<PointsTransactionDTO> response =
         controller.deletePointsTransaction(pointsTransaction.getId());
@@ -83,7 +87,7 @@ public class PointsTransactionControllerTest {
     PointsTransactionDTO pointsTransaction = getPointsTransactionDTO();
     when(pointsTransactionService.save(any())).thenReturn(pointsTransaction);
 
-    restTemplateSetup(restTemplate);
+    restTemplateSetup();
 
     ResponseEntity<PointsTransactionDTO> response =
         controller.createPointsTransaction(pointsTransaction);
@@ -98,10 +102,28 @@ public class PointsTransactionControllerTest {
     pointsTransaction.getOrder().setCreatedAt("2019-09-26");
     when(pointsTransactionService.save(any())).thenReturn(pointsTransaction);
 
-    restTemplateSetup(restTemplate);
+    restTemplateSetup();
 
     assertThrows(
         ConstraintViolationException.class,
         () -> controller.createPointsTransaction(pointsTransaction));
+  }
+
+  @Test
+  public void verifyOrderDto_invalidCustomerEmail_returnViolation() {
+    OrderDTO pointsTransactionDTO = getPointsTransactionDTO().getOrder();
+    pointsTransactionDTO.setCreatedAt("");
+
+    ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+    Validator validator = validatorFactory.getValidator();
+    Set<ConstraintViolation<OrderDTO>> violations = validator.validate(pointsTransactionDTO);
+
+    assertFalse(violations.isEmpty());
+  }
+
+  private void restTemplateSetup() {
+    CampaignDTO[] campaignsArr = getActiveCampaignDTOList().stream().toArray(CampaignDTO[]::new);
+    ResponseEntity<CampaignDTO[]> mockResponse = new ResponseEntity<>(campaignsArr, HttpStatus.OK);
+    when(restTemplate.getForEntity(eq(any()), CampaignDTO[].class)).thenReturn(mockResponse);
   }
 }
