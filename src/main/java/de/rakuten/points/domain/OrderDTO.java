@@ -1,21 +1,16 @@
 package de.rakuten.points.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class OrderDTO implements Serializable {
+public class OrderDTO {
   private String id;
 
   @NotEmpty private String customerEmail;

@@ -47,7 +47,7 @@ public class PointsTransactionControllerTest {
         controller.getPointsTransaction(pointsTransaction.getId());
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(pointsTransaction.getId(), response.getBody().getId());
+    assertEquals(pointsTransaction, response.getBody());
   }
 
   @Test

@@ -22,12 +22,13 @@ public class PointsBalanceControllerTest {
 
   @Test
   public void getPointsBalance_validEmail_responseStatusOk() {
-    when(service.getByCustomerEmail(any())).thenReturn(getPointsBalanceDTO());
+    PointsBalanceDTO pointsBalanceDTO = getPointsBalanceDTO();
+    when(service.getByCustomerEmail(any())).thenReturn(pointsBalanceDTO);
 
     ResponseEntity<PointsBalanceDTO> response =
-        controller.getPointsBalance(getPointsBalanceDTO().getCustomerEmail());
+        controller.getPointsBalance(pointsBalanceDTO.getCustomerEmail());
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(getPointsBalanceDTO().getCustomerEmail(), response.getBody().getCustomerEmail());
-  }
+    assertEquals(pointsBalanceDTO, response.getBody());
+   }
 }

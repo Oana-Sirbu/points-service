@@ -31,8 +31,8 @@ public class PointsBalanceController {
   @GetMapping("/pointsbalance/customer/{customeremail}")
   ResponseEntity<PointsBalanceDTO> getPointsBalance(
       @PathVariable @Valid @NotNull @Email(message = BAD_INPUT_ERROR_MESSAGE)
-          String customeremail) {
-    PointsBalanceDTO pointsBalance = pointsBalanceService.getByCustomerEmail(customeremail);
+          String customerEmail) {
+    PointsBalanceDTO pointsBalance = pointsBalanceService.getByCustomerEmail(customerEmail);
     return new ResponseEntity<>(pointsBalance, HttpStatus.OK);
   }
 }
