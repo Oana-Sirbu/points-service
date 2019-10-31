@@ -2,11 +2,11 @@ package de.rakuten.points.controller;
 
 import de.rakuten.points.domain.PointsBalanceDTO;
 import de.rakuten.points.service.impl.PointsBalanceServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -15,16 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class PointsBalanceControllerTest {
   @InjectMocks private PointsBalanceController controller;
-
   @Mock private PointsBalanceServiceImpl service;
-
-  @BeforeEach
-  public void setup() {
-    MockitoAnnotations.initMocks(this);
-    controller = new PointsBalanceController(service);
-  }
 
   @Test
   public void getPointsBalance_validEmail_responseStatusOk() {

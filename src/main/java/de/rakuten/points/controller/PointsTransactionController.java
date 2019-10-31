@@ -6,6 +6,11 @@ import de.rakuten.points.service.impl.PointsBalanceServiceImpl;
 import de.rakuten.points.service.impl.PointsTransactionServiceImpl;
 import de.rakuten.points.service.impl.ProductServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -32,23 +37,33 @@ public class PointsTransactionController {
   private PointsTransactionServiceImpl pointsTransactionService;
   private PointsBalanceServiceImpl pointsBalanceService;
   private ProductServiceImpl productService;
+  private RestTemplate restTemplate;
 
+  @Value("${campaign.api.address}")
+  private String campaignURL;
+
+  @Autowired
   public PointsTransactionController(
       PointsTransactionServiceImpl pointsTransactionService,
       PointsBalanceServiceImpl pointsBalanceService,
-      ProductServiceImpl productService) {
+      ProductServiceImpl productService,
+      RestTemplate restTemplate) {
     this.pointsTransactionService = pointsTransactionService;
     this.pointsBalanceService = pointsBalanceService;
     this.productService = productService;
+    this.restTemplate = restTemplate;
   }
 
   public List<CampaignDTO> getActiveCampaigns(PointsTransactionDTO pointsTransactionDTO) {
-    RestTemplate restTemplate = new RestTemplate();
-    String resourceUrl = "http://localhost:8081/campaignapi/campaign/active/";
-    ResponseEntity<CampaignDTO[]> response =
-        restTemplate.getForEntity(
-            resourceUrl + pointsTransactionDTO.getOrder().getCreatedAt(), CampaignDTO[].class);
-    return Arrays.asList(response.getBody());
+    String resourceUrl =
+        campaignURL + "/campaign/active/" + pointsTransactionDTO.getOrder().getCreatedAt();
+    ResponseEntity<List<CampaignDTO>> responseEntity =
+        restTemplate.exchange(
+            resourceUrl,
+            HttpMethod.GET,
+            new HttpEntity<>(new ArrayList<>()),
+            new ParameterizedTypeReference<List<CampaignDTO>>() {});
+    return responseEntity.getBody();
   }
 
   @GetMapping("/pointstransaction/{id}")

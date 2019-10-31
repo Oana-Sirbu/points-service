@@ -1,16 +1,18 @@
 package de.rakuten.points.controller;
 
-import de.rakuten.points.domain.CampaignDTO;
 import de.rakuten.points.domain.OrderDTO;
 import de.rakuten.points.domain.PointsTransactionDTO;
 import de.rakuten.points.service.impl.PointsBalanceServiceImpl;
 import de.rakuten.points.service.impl.PointsTransactionServiceImpl;
 import de.rakuten.points.service.impl.ProductServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -22,24 +24,18 @@ import static de.rakuten.points.util.TestUtils.getActiveCampaignDTOList;
 import static de.rakuten.points.util.TestUtils.getPointsTransactionDTO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class PointsTransactionControllerTest {
   @InjectMocks private PointsTransactionController controller;
-
   @Mock private PointsTransactionServiceImpl pointsTransactionService;
   @Mock private PointsBalanceServiceImpl pointsBalanceService;
   @Mock private ProductServiceImpl productService;
-  @Mock private RestTemplate restTemplate;
 
-  @BeforeEach
-  public void setup() {
-    MockitoAnnotations.initMocks(this);
-    controller =
-        new PointsTransactionController(
-            pointsTransactionService, pointsBalanceService, productService);
-  }
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private RestTemplate restTemplate;
 
   @Test
   public void getPointsTransaction_pointsTransactionId_responseStatusOK() {
@@ -100,7 +96,6 @@ public class PointsTransactionControllerTest {
   public void createPointsTransaction_pointsTransactionDTO_throwException() {
     PointsTransactionDTO pointsTransaction = getPointsTransactionDTO();
     pointsTransaction.getOrder().setCreatedAt("2019-09-26");
-    when(pointsTransactionService.save(any())).thenReturn(pointsTransaction);
 
     restTemplateSetup();
 
@@ -122,8 +117,8 @@ public class PointsTransactionControllerTest {
   }
 
   private void restTemplateSetup() {
-    CampaignDTO[] campaignsArr = getActiveCampaignDTOList().stream().toArray(CampaignDTO[]::new);
-    ResponseEntity<CampaignDTO[]> mockResponse = new ResponseEntity<>(campaignsArr, HttpStatus.OK);
-    when(restTemplate.getForEntity(eq(any()), CampaignDTO[].class)).thenReturn(mockResponse);
+    when(restTemplate.exchange(
+            anyString(), any(HttpMethod.class), any(), any(ParameterizedTypeReference.class)))
+        .thenReturn(new ResponseEntity(getActiveCampaignDTOList(), HttpStatus.OK));
   }
 }

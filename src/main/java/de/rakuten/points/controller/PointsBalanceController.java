@@ -2,6 +2,7 @@ package de.rakuten.points.controller;
 
 import de.rakuten.points.domain.PointsBalanceDTO;
 import de.rakuten.points.service.impl.PointsBalanceServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +23,7 @@ import static de.rakuten.points.commons.Constants.BAD_INPUT_ERROR_MESSAGE;
 public class PointsBalanceController {
   private PointsBalanceServiceImpl pointsBalanceService;
 
+  @Autowired
   public PointsBalanceController(PointsBalanceServiceImpl pointsBalanceService) {
     this.pointsBalanceService = pointsBalanceService;
   }

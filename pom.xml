@@ -81,5 +81,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <finalName>points</finalName>
     </build>
 </project>
