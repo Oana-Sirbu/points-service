@@ -9,6 +9,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static de.rakuten.points.commons.Constants.NOT_FOUND_ERROR_MESSAGE;
 
@@ -107,19 +108,14 @@ public class PointsBalanceServiceImpl
   }
 
   private void putPointsToCustomer(String email, Integer points) {
-
     log.info("Starting put points to customer. Email : {} ", email);
-    PointsBalanceDTO pointsBalanceDTO = new PointsBalanceDTO();
-
-    try {
-      pointsBalanceDTO = getByCustomerEmail(email);
-    } catch (ResourceNotFoundException e) {
-      log.info("Email {} not found. Adding new customer with this email.", email);
-      pointsBalanceDTO.setCustomerEmail(email);
-      pointsBalanceDTO.setPoints(0);
-    } finally {
-      pointsBalanceDTO.setPoints(pointsBalanceDTO.getPoints() + points);
-      update(pointsBalanceDTO);
+    Optional<PointsBalance> pointsBalance = pointsBalanceRepository.getByCustomerEmail(email);
+    if (pointsBalance.isPresent()) {
+      PointsBalance pointsBalanceEntity = pointsBalance.get();
+      pointsBalanceEntity.setPoints(pointsBalanceEntity.getPoints() + points);
+      update(mapper.convertToDto(pointsBalanceEntity));
+    } else {
+      save(PointsBalanceDTO.builder().customerEmail(email).points(0).build());
     }
   }
 }

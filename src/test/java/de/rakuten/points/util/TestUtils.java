@@ -1,6 +1,7 @@
 package de.rakuten.points.util;
 
 import de.rakuten.points.domain.*;
+import de.rakuten.points.model.PointsBalance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,5 +72,13 @@ public class TestUtils {
             .products(products)
             .build());
     return campaigns;
+  }
+
+  public static PointsBalance getPointsBalance() {
+    return PointsBalance.builder()
+        .id("945afe2b-2847-4a95-ad79-004462d2c76")
+        .customerEmail("customer@gmail.com")
+        .points(0)
+        .build();
   }
 }

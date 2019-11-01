@@ -85,6 +85,8 @@ public class PointsTransactionController {
           @Pattern(regexp = UUID_REGEX_PATTERN, message = BAD_INPUT_ERROR_MESSAGE)
           String id,
       @RequestBody @Valid PointsTransactionDTO pointsTransactionDTO) {
+    validateProducts(pointsTransactionDTO);
+
     PointsTransactionDTO oldPointsTransactionDTO = pointsTransactionService.findById(id);
     PointsTransactionDTO newPointsTransactionDTO =
         pointsTransactionService.update(pointsTransactionDTO);
@@ -114,8 +116,10 @@ public class PointsTransactionController {
   @PostMapping("/pointstransaction/")
   ResponseEntity<PointsTransactionDTO> createPointsTransaction(
       @RequestBody @Valid PointsTransactionDTO pointsTransactionDTO) {
+    validateProducts(pointsTransactionDTO);
+
     if (!validatePointsTransaction(pointsTransactionDTO)) {
-      log.error("Invalid created date");
+      log.error("Invalid created at date");
       throw new ConstraintViolationException(BAD_INPUT_ERROR_MESSAGE, new HashSet<>());
     }
 
@@ -123,6 +127,13 @@ public class PointsTransactionController {
     pointsBalanceService.addPointsToCustomer(
         productService, pointsTransactionDTO, getActiveCampaigns(pointsTransactionDTO));
     return new ResponseEntity<>(result, HttpStatus.CREATED);
+  }
+
+  private void validateProducts(PointsTransactionDTO pointsTransactionDTO) {
+    pointsTransactionDTO
+        .getOrder()
+        .getItems()
+        .forEach(item -> productService.findById(item.getProduct().getId()));
   }
 
   private boolean validatePointsTransaction(PointsTransactionDTO pointsTransactionDTO) {
